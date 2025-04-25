@@ -30,13 +30,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: SAM build
+      - name: Build
         run: sam build
 
-      - name: SAM deploy
-        run: |
-          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset \
+      - name: Deploy
+        run: sam deploy \ 
+            --no-confirm-changeset \ 
+            --no-fail-on-empty-changeset \
             --stack-name mongo-to-postgres-migration \
+            --s3-bucket samclisourcebucket-123454 \
             --parameter-overrides \
               MongoURI=${{ secrets.MONGO_URI }} \
               PGHost=${{ secrets.PG_HOST }} \
