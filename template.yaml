@@ -159,4 +159,13 @@ Resources:
                 BooleanEquals: true
                 Next: ReadMongo
             Default: SuccessState
+
+          SuccessState:
+            Type: Succeed
+
+          FailState:
+            Type: Fail
+            Cause: "Migration Process Failed"
+            Error: "MigrationError"
+
       Role: arn:aws:iam::600627337305:role/StateMachineExecutionRole
