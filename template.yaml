@@ -159,25 +159,4 @@ Resources:
                 BooleanEquals: true
                 Next: ReadMongo
             Default: SuccessState
-      Role: !GetAtt StateMachineExecutionRole.Arn
-
-  StateMachineExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - states.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: StateMachinePolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - lambda:InvokeFunction
-                Resource: "*"
+      Role: arn:aws:iam::600627337305:role/StateMachineExecutionRole
