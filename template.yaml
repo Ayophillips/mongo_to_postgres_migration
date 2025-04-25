@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: Serverless MongoDB to PostgreSQL Data Migration
 
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID (default VPC)
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Subnet IDs for Lambda functions
+
 Globals:
   Function:
     Timeout: 30
@@ -10,9 +18,7 @@ Globals:
     VpcConfig:
       SecurityGroupIds:
         - !Ref LambdaSecurityGroup
-      SubnetIds:
-        - !Ref PrivateSubnet1
-        - !Ref PrivateSubnet2
+      SubnetIds: !Ref SubnetIds
     Environment:
       Variables:
         LOG_LEVEL: INFO
@@ -23,7 +29,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for Lambda functions
-      VpcId: !Ref VPC
+      VpcId: !Ref VpcId
       SecurityGroupEgress:
         - IpProtocol: "-1"
           FromPort: -1
