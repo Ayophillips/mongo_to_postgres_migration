@@ -1,0 +1,154 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless MongoDB to PostgreSQL Data Migration
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.9
+    MemorySize: 128
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref LambdaSecurityGroup
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+    Environment:
+      Variables:
+        LOG_LEVEL: INFO
+        BATCH_SIZE: 1000
+
+Resources:
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Lambda functions
+      VpcId: !Ref VPC
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+
+  ReadMongoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/read_mongo/
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          MONGO_SECRETS_ARN: !Ref MongoDBSecrets
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref MongoDBSecrets
+
+  TransformDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/transform_data/
+      Handler: app.lambda_handler
+
+  WritePostgresFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/write_postgres/
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          POSTGRES_SECRETS_ARN: !Ref PostgresSecrets
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref PostgresSecrets
+
+  MongoDBSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: MongoDB connection details
+      SecretString: !Sub '{"uri": "${MongoURI}"}'
+
+  PostgresSecrets:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: PostgreSQL connection details
+      SecretString: !Sub '{"host": "${PGHost}", "username": "${PGUser}", "password": "${PGPassword}", "database": "${PGDatabase}"}'
+
+  MigrationStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Definition:
+        StartAt: ReadMongo
+        States:
+          ReadMongo:
+            Type: Task
+            Resource: !GetAtt ReadMongoFunction.Arn
+            Next: TransformData
+            ResultPath: "$"
+            Retry:
+              - ErrorEquals: ["MongoReadError", "States.TaskFailed"]
+                IntervalSeconds: 3
+                MaxAttempts: 3
+                BackoffRate: 2
+            Catch:
+              - ErrorEquals: ["States.ALL"]
+                Next: FailState
+                ResultPath: "$.error"
+
+          TransformData:
+            Type: Task
+            Resource: !GetAtt TransformDataFunction.Arn
+            Next: WritePostgres
+            ResultPath: "$"
+            Retry:
+              - ErrorEquals: ["TransformError", "States.TaskFailed"]
+                IntervalSeconds: 3
+                MaxAttempts: 3
+                BackoffRate: 2
+            Catch:
+              - ErrorEquals: ["States.ALL"]
+                Next: FailState
+                ResultPath: "$.error"
+
+          WritePostgres:
+            Type: Task
+            Resource: !GetAtt WritePostgresFunction.Arn
+            Next: CheckMoreRecords
+            ResultPath: "$"
+            Retry:
+              - ErrorEquals: ["States.TaskFailed"]
+                IntervalSeconds: 3
+                MaxAttempts: 3
+                BackoffRate: 2
+            Catch:
+              - ErrorEquals: ["States.ALL"]
+                Next: FailState
+                ResultPath: "$.error"
+
+          CheckMoreRecords:
+            Type: Choice
+            Choices:
+              - Variable: "$.has_more"
+                BooleanEquals: true
+                Next: ReadMongo
+            Default: SuccessState
+      Role: !GetAtt StateMachineExecutionRole.Arn
+
+  StateMachineExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - states.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: StateMachinePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: "*"
