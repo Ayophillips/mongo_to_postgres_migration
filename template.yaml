@@ -6,9 +6,11 @@ Parameters:
   VpcId:
     Type: AWS::EC2::VPC::Id
     Description: VPC ID (default VPC)
+    Default: vpc-03e0d958406d5cb79
   SubnetIds:
     Type: List<AWS::EC2::Subnet::Id>
     Description: Subnet IDs for Lambda functions
+    Default: subnet-03ee0d8610a751d07,subnet-07368c456ed3e8211
 
 Globals:
   Function:
