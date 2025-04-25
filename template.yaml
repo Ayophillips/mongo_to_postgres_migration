@@ -59,11 +59,23 @@ Resources:
           ToPort: -1
           CidrIp: 0.0.0.0/0
 
+  MongoPythonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: mongo-python-layer
+      Description: Dependencies for MongoDB and PostgreSQL functions
+      ContentUri: layers/mongodb/
+      CompatibleRuntimes:
+        - python3.9
+      RetentionPolicy: Retain
+
   ReadMongoFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions/read_mongo/
       Handler: app.lambda_handler
+      Layers:
+        - !Ref MongoPythonLayer
       Environment:
         Variables:
           MONGO_SECRETS_ARN: !Ref MongoDBSecrets
@@ -76,12 +88,16 @@ Resources:
     Properties:
       CodeUri: functions/transform_data/
       Handler: app.lambda_handler
+      Layers:
+        - !Ref MongoPythonLayer
 
   WritePostgresFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions/write_postgres/
       Handler: app.lambda_handler
+      Layers:
+        - !Ref MongoPythonLayer
       Environment:
         Variables:
           POSTGRES_SECRETS_ARN: !Ref PostgresSecrets
