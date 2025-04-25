@@ -40,8 +40,6 @@ jobs:
             --stack-name mongo-to-postgres-migration \
             --s3-bucket samclisourcebucket-123454 \
             --parameter-overrides \
-              VpcId="${{ env.VPC_ID }}" \
-              SubnetIds="${{ env.SUBNET_IDS }}" \
               "MongoURI=${{ secrets.MONGO_URI }}" \
               "PGHost=${{ secrets.PG_HOST }}" \
               "PGUser=${{ secrets.PG_USER }}" \
