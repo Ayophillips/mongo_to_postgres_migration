@@ -32,6 +32,6 @@ jobs:
       - name: Validate
         run: sam validate
 
-      - name: SAM build
-        run: |
-          sam build --parallel --use-container
+    #   - name: SAM build
+    #     run: |
+    #       sam build --parallel --use-container
