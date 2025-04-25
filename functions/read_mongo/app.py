@@ -47,10 +47,7 @@ def lambda_handler(event, context):
             "last_processed_id": last_id
         }
 
-    except pymongo.errors.ConnectionError as e:
-        logger.error(f"MongoDB connection error: {str(e)}")
-        raise MongoReadError(f"Failed to connect to MongoDB: {str(e)}")
-    except pymongo.errors.OperationError as e:
+    except pymongo.errors.PyMongoError as e:
         logger.error(f"MongoDB operation error: {str(e)}")
         raise MongoReadError(f"Failed to read from MongoDB: {str(e)}")
     except Exception as e:
