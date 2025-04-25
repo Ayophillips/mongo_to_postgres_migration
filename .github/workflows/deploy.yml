@@ -43,4 +43,5 @@ jobs:
               PGUser=${{ secrets.PG_USER }} \
               PGPassword=${{ secrets.PG_PASSWORD }} \
               PGDatabase=${{ secrets.PG_DATABASE }} \
-            --capabilities CAPABILITY_IAM
+            --capabilities CAPABILITY_IAM \
+            --region ${{ secrets.AWS_REGION }}
