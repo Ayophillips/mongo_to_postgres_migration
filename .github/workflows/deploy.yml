@@ -40,12 +40,12 @@ jobs:
             --stack-name mongo-to-postgres-migration \
             --s3-bucket samclisourcebucket-123454 \
             --parameter-overrides \
-              "VpcId=vpc-03e0d958406d5cb79" \
-              "SubnetIds=subnet-03ee0d8610a751d07,subnet-07368c456ed3e8211" \
+              "VpcId=${{ env.VPC_ID }}" \
+              "SubnetIds=${{ env.SUBNET_IDS }}" \
               "MongoURI=${{ secrets.MONGO_URI }}" \
               "PGHost=${{ secrets.PG_HOST }}" \
               "PGUser=${{ secrets.PG_USER }}" \
               "PGPassword=${{ secrets.PG_PASSWORD }}" \
               "PGDatabase=${{ secrets.PG_DATABASE }}" \
             --capabilities CAPABILITY_IAM \
-            --region "${{ secrets.AWS_REGION }}"
+            --region "${{ env.AWS_REGION }}"
