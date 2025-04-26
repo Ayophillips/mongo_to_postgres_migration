@@ -35,6 +35,7 @@ Parameters:
 
 Globals:
   Function:
+    Timeout: 900
     Runtime: python3.9
     MemorySize: 128
     VpcConfig:
