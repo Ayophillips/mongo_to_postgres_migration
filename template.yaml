@@ -5,7 +5,7 @@ Description: Serverless MongoDB to PostgreSQL Data Migration
 Parameters:
   VpcStackName:
     Type: String
-    Description: Name of the VPC infrastructure stack 
+    Description: Name of the VPC infrastructure stack
     Default: MongoDBAtlasVPC
   PGHost:
     Type: String
@@ -33,11 +33,11 @@ Globals:
   Function:
     Timeout: 900
     Runtime: python3.9
-    MemorySize: 128
+    MemorySize: 256
     VpcConfig:
       SecurityGroupIds:
         - Fn::ImportValue: !Sub "${VpcStackName}-LAMBDA-SG"
-      SubnetIds: 
+      SubnetIds:
         Fn::Split:
           - ","
           - Fn::ImportValue: !Sub "${VpcStackName}-PRIVATE-SUBNETS"
@@ -47,7 +47,6 @@ Globals:
         BATCH_SIZE: 1000
 
 Resources:
-
   MongoPythonLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -69,6 +68,8 @@ Resources:
       Environment:
         Variables:
           MONGO_SECRETS_ARN: !Ref MongoDBSecrets
+          BATCH_SIZE: 10 # Explicitly set smaller batch size
+          LOG_LEVEL: INFO
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: !Ref MongoDBSecrets
