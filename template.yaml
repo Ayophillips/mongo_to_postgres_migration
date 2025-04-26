@@ -47,11 +47,21 @@ Globals:
         BATCH_SIZE: 1000
 
 Resources:
+  PostgreSQLLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: postgresql-layer
+      Description: PostgreSQL dependencies
+      ContentUri: layers/postgresql/
+      CompatibleRuntimes:
+        - python3.9
+      RetentionPolicy: Retain
+
   MongoPythonLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
       LayerName: mongo-python-layer
-      Description: Dependencies for MongoDB and PostgreSQL functions
+      Description: Dependencies for MongoDB functions
       ContentUri: layers/mongodb/
       CompatibleRuntimes:
         - python3.9
@@ -89,6 +99,7 @@ Resources:
       Handler: app.lambda_handler
       Layers:
         - !Ref MongoPythonLayer
+        - !Ref PostgreSQLLayer
       Environment:
         Variables:
           POSTGRES_SECRETS_ARN: !Ref PostgresSecrets
