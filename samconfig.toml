@@ -1,4 +1,17 @@
 version = 0.1
+
+# VPC infrastructure stack configuration
+[vpc]
+[vpc.deploy]
+[vpc.deploy.parameters]
+stack_name = "MongoDBAtlasVPC"
+s3_bucket = "samclisourcebucket-123454"
+region = "us-east-1"
+confirm_changeset = false
+capabilities = "CAPABILITY_IAM"
+template = "vpc-infrastructure.yaml"
+
+# Main application stack configuration
 [default]
 [default.deploy]
 [default.deploy.parameters]
@@ -7,4 +20,13 @@ s3_bucket = "samclisourcebucket-123454"
 region = "us-east-1"
 confirm_changeset = false
 capabilities = "CAPABILITY_IAM"
+parameter_overrides = "VpcStackName=MongoDBAtlasVPC"
 image_repositories = []
+
+# Add a deployment guide in comments
+# Deployment order:
+# 1. Deploy VPC stack first:
+#    sam deploy --config-env vpc
+# 
+# 2. Deploy main application stack:
+#    sam deploy --config-env default
