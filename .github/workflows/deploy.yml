@@ -45,7 +45,7 @@ jobs:
 
       - name: Deploy
         run: |
-          sam deploy \
+          sam deploy --config-env default \
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --stack-name mongo-to-postgres-migration \
