@@ -54,9 +54,13 @@ Resources:
       GroupDescription: Security group for Lambda functions
       VpcId: !Ref VpcId
       SecurityGroupEgress:
-        - IpProtocol: "-1"
-          FromPort: -1
-          ToPort: -1
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 27017
+          ToPort: 27017
           CidrIp: 0.0.0.0/0
 
   MongoPythonLayer:
