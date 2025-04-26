@@ -4,6 +4,7 @@ import json
 import logging
 import time
 from bson import json_util, ObjectId # type: ignore
+from bson.json_util import default
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, NetworkTimeout
 
 logger = logging.getLogger()
@@ -84,9 +85,12 @@ def lambda_handler(event, context):
         elapsed_time = time.time() - start_time
         logger.info(f"Successfully read {len(users)} documents from MongoDB in {elapsed_time:.2f} seconds")
         
+        # Convert MongoDB documents to JSON-serializable format
+        serialized_users = json.loads(json_util.dumps(users))
+        
         return {
             "statusCode": 200,
-            "users": users,
+            "users": serialized_users,
             "has_more": has_more,
             "last_processed_id": last_id
         }
@@ -110,6 +114,13 @@ def lambda_handler(event, context):
         logger.error(f"MongoDB operation error: {str(e)}")
         raise MongoReadError(f"Failed to read from MongoDB: {str(e)}")
         
+    except TypeError as e:
+        if "not JSON serializable" in str(e):
+            logger.error(f"JSON serialization error: {str(e)}")
+            raise MongoReadError(f"Failed to serialize MongoDB data: {str(e)}")
+        else:
+            logger.error(f"Type error: {str(e)}")
+            raise MongoReadError(f"Type error during read: {str(e)}")
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise MongoReadError(f"Unexpected error during read: {str(e)}")
