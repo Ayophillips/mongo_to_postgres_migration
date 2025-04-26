@@ -18,7 +18,7 @@ def lambda_handler(event, context):
         last_processed_id = event.get('last_processed_id', None)
         
         client = pymongo.MongoClient(os.environ['MONGO_URI'])
-        db = client["test"]
+        db = client["contacts-backend"]
         collection = db["users"]
 
         query = {}
