@@ -4,7 +4,10 @@
 Author: Ayo Phillips
 
 ## Overview
-This project provides a serverless solution for migrating data from MongoDB Atlas to PostgreSQL databases. It uses AWS Lambda functions orchestrated by Step Functions to handle the ETL (Extract, Transform, Load) process in a scalable and reliable way.
+This project provides a serverless solution for migrating data from MongoDB to PostgreSQL databases. It uses AWS Lambda functions orchestrated by Step Functions to handle the ETL (Extract, Transform, Load) process in a scalable and reliable way.
+
+
+![stepfunctions_graph](https://github.com/user-attachments/assets/465066b4-ff9d-42cd-bec8-43b869e8a495)
 
 ## Architecture
 The solution consists of three main components:
