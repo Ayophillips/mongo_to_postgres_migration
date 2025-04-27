@@ -33,23 +33,23 @@ jobs:
       - name: Build
         run: sam build
 
-      - name: Debug Parameters
-        run: |
-          echo "Checking if secrets are set (will show as ****):"
-          echo "MONGO_URI: ${{ secrets.MONGO_URI != '' }}"
-          echo "PG_HOST: ${{ secrets.PG_HOST != '' }}"
-          echo "PG_USER: ${{ secrets.PG_USER != '' }}"
-          echo "PG_PASSWORD: ${{ secrets.PG_PASSWORD != '' }}"
-          echo "PG_DATABASE: ${{ secrets.PG_DATABASE != '' }}"
-          echo "AWS_REGION: ${{ secrets.AWS_REGION != '' }}"
+      # - name: Debug Parameters
+      #   run: |
+      #     echo "Checking if secrets are set (will show as ****):"
+      #     echo "MONGO_URI: ${{ secrets.MONGO_URI != '' }}"
+      #     echo "PG_HOST: ${{ secrets.PG_HOST != '' }}"
+      #     echo "PG_USER: ${{ secrets.PG_USER != '' }}"
+      #     echo "PG_PASSWORD: ${{ secrets.PG_PASSWORD != '' }}"
+      #     echo "PG_DATABASE: ${{ secrets.PG_DATABASE != '' }}"
+      #     echo "AWS_REGION: ${{ secrets.AWS_REGION != '' }}"
 
-      - name: Deploy
-        run: |
-          sam deploy --config-env default \
-            --no-confirm-changeset \
-            --no-fail-on-empty-changeset \
-            --stack-name mongo-to-postgres-migration \
-            --s3-bucket samclisourcebucket-123454 \
-            --parameter-overrides MongoURI="${{ secrets.MONGO_URI }}" PGHost="${{ secrets.PG_HOST }}" PGUser="${{ secrets.PG_USER }}" PGPassword="${{ secrets.PG_PASSWORD }}" PGDatabase="${{ secrets.PG_DATABASE }}" \
-            --capabilities CAPABILITY_IAM \
-            --region "${{ secrets.AWS_REGION }}"
+      # - name: Deploy
+      #   run: |
+      #     sam deploy --config-env default \
+      #       --no-confirm-changeset \
+      #       --no-fail-on-empty-changeset \
+      #       --stack-name mongo-to-postgres-migration \
+      #       --s3-bucket samclisourcebucket-123454 \
+      #       --parameter-overrides MongoURI="${{ secrets.MONGO_URI }}" PGHost="${{ secrets.PG_HOST }}" PGUser="${{ secrets.PG_USER }}" PGPassword="${{ secrets.PG_PASSWORD }}" PGDatabase="${{ secrets.PG_DATABASE }}" \
+      #       --capabilities CAPABILITY_IAM \
+      #       --region "${{ secrets.AWS_REGION }}"
